@@ -4,12 +4,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,13 +23,28 @@ import java.io.IOException;
 
 @Configuration // 설정 클래스니까 붙여주는 어노테이션
 @EnableWebSecurity // 웹시큐리티 활성화
+@RequiredArgsConstructor
 public class SecurityConfig {
     // 사용자 정의 보안 설정 클래스
+    private final UserDetailsService userDetailsService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .sessionManagement() // 세션 관리 기능이 작동
+                .maximumSessions(1) // 최대 허용 가능 세션 수, -1이면 무제한 로그인 허용
+                .maxSessionsPreventsLogin(true) // 동시 로그인 차단
+                .expiredUrl("/expired");// 세션이 만료된 경우 이동할 경로
+        http
+                .sessionManagement()
+                        .sessionFixation().changeSessionId(); // 기본값
+        http
                 .authorizeHttpRequests() // 인가정책 설정
                 .anyRequest().authenticated();
+
+//        http.sessionManagement()
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
         http
                 .formLogin() // formlogin 인증 정책 설정
 //                .loginPage("/loginPage")  // 사용자 정의 로그인 페이지 지정
@@ -78,7 +96,7 @@ public class SecurityConfig {
                 .rememberMeParameter("remember") // 기본 파라미터명은 remember-me
                 .tokenValiditySeconds(3600) // default는 14일
                 .alwaysRemember(true); // 리멈버 미 기능이 활성화되지 않아도 항상 실행
-//                .userDetailsService()
+//                .userDetailsService(userDetailsService);
     return http.build();
     }
 }

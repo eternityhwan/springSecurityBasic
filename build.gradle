@@ -22,11 +22,15 @@ repositories {
 }
 
 dependencies {
+    // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    // 타임리프 엔진
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // Spring MVC
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     compileOnly 'org.projectlombok:lombok'
+    // DB Postgres
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
